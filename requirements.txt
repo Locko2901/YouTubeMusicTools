@@ -1,0 +1,5 @@
+customtkinter==5.2.2
+google-api-python-client==2.149.0
+pip-chill==1.0.3
+nuitka==2.4.8
+yt-dlp==2024.10.7

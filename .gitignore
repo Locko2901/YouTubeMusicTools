@@ -1,0 +1,15 @@
+ytmtools.exe
+main.cmd
+config.json
+nuitka-crash-report.xml
+.venv/
+config/
+data/
+build/
+main.onefile-build/
+main.build/
+main.dist/
+ytmtools.dist/
+output/
+downloads/
+__pycache__/
