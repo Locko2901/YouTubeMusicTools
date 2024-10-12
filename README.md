@@ -43,7 +43,7 @@ For a detailed guide, refer to [this tutorial](https://developers.google.com/you
 
 ## Downloading and Compiling
 
-You can download the zip containing the executable from [Releases](https://github.com/Locko2901/YouTubeMusicTools/releases). However, CI is currently broken, so it is pretty much a trust-me-bro. If you don't want to risk it, I suggest compiling yourself:
+You can download the zip containing the executable from [Releases](https://github.com/Locko2901/YouTubeMusicTools/releases). However, the CI is currently broken, so it is pretty much a trust-me-bro. If you don't want to risk it, I suggest compiling yourself (alternatively just run it locally from the main.py file):
 
 1. Ensure you have the necessary build tools installed.
 2. Clone the repository:
