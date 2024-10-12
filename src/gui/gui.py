@@ -1,11 +1,16 @@
-import os
-import shutil
-import threading
 import json
-from googleapiclient.discovery import build
+import logging
+import os
+import sys
+import threading
+import uuid
+from logging.handlers import TimedRotatingFileHandler, QueueHandler, QueueListener
+from queue import Queue
+
 from customtkinter import *
-from tkinter import Image, Listbox, filedialog, messagebox
-from gui.utils import calculate_directory_size, clear_directory, create_directories
+from tkinter import Listbox, filedialog, messagebox
+
+from gui.utils import calculate_directory_size, clear_directory, create_directories, trim_logs_directory
 from modules.youtube_service import get_playlist_name, get_playlist_items
 from modules.file_handler import write_to_file
 from modules.downloader import download_videos, merge_files
@@ -14,7 +19,83 @@ CONFIG_FILE = './config/config.json'
 CONFIG_DIR = './config'
 DOWNLOAD_DIR = './data/downloads'
 OUTPUT_DIR = './data/output'
+LOG_DIR = './logs'
 ROOT_DIR = '.'
+LATEST_LOG_FILE = os.path.join(LOG_DIR, 'latest.log')
+
+create_directories([CONFIG_DIR, DOWNLOAD_DIR, OUTPUT_DIR, LOG_DIR])
+trim_logs_directory(LOG_DIR)
+
+class CustomTimedRotatingFileHandler(TimedRotatingFileHandler):
+    def __init__(self, filename, backupCount=5, **kwargs):
+        super().__init__(filename, backupCount=backupCount, **kwargs)
+
+    def doRollover(self):
+        super().doRollover()
+        
+        baseFilename, ext = os.path.splitext(self.baseFilename)
+        unique_id = uuid.uuid4()
+        new_filename = f"{baseFilename}_{unique_id}{ext}"
+        
+        if os.path.exists(self.baseFilename):
+            os.remove(self.baseFilename)
+        
+        # Attempt to create a symbolic link
+        try:
+            os.symlink(new_filename, self.baseFilename)
+        except OSError as e:
+            print(f"Symlink creation failed: {e}. Consider running with appropriate privileges.")
+
+class StreamToLogger:
+    def __init__(self, logger, log_level):
+        self.logger = logger
+        self.log_level = log_level
+        self.linebuf = ''
+
+    def write(self, buf):
+        for line in buf.rstrip().splitlines():
+            self.logger.log(self.log_level, line.rstrip())
+
+    def flush(self):
+        pass
+
+def rename_with_unique_id(log_file):
+    if os.path.exists(log_file):
+        unique_id = uuid.uuid4()
+        base_filename, ext = os.path.splitext(log_file)
+        new_name = f"{base_filename}_{unique_id}{ext}"
+
+        while os.path.exists(new_name):
+            new_name = f"{base_filename}_{unique_id}{ext}"
+
+        os.rename(log_file, new_name)
+
+rename_with_unique_id(LATEST_LOG_FILE)
+
+logger = logging.getLogger('YouTubeDownloaderLogger')
+logger.setLevel(logging.DEBUG)
+
+log_queue = Queue(-1)
+queue_handler = QueueHandler(log_queue)
+logger.addHandler(queue_handler)
+
+file_handler = CustomTimedRotatingFileHandler(LATEST_LOG_FILE, when='midnight', backupCount=5)
+file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+
+listener = QueueListener(log_queue, file_handler)
+listener.start()
+
+sys.stdout = StreamToLogger(logger, logging.INFO)
+sys.stderr = StreamToLogger(logger, logging.ERROR)
+
+try:
+    sys.stdout = open(sys.stdout.fileno(), mode='w', encoding='utf-8', buffering=1)
+    sys.stderr = open(sys.stderr.fileno(), mode='w', encoding='utf-8', buffering=1)
+except Exception:
+    pass
+
+sys.stdout = StreamToLogger(logger, logging.INFO)
+sys.stderr = StreamToLogger(logger, logging.ERROR)
 
 class YouTubeDownloaderGUI:
     def __init__(self):
@@ -27,9 +108,7 @@ class YouTubeDownloaderGUI:
         icon_path = os.path.join(base_path, 'img.ico')
         self.root.iconbitmap(icon_path)
 
-    
         self.load_config()
-        create_directories([CONFIG_DIR, DOWNLOAD_DIR, OUTPUT_DIR])
         
         # Create main frame for layout
         self.main_layout()
@@ -283,6 +362,14 @@ class YouTubeDownloaderGUI:
 
     def run(self):
         self.root.mainloop()
+
+    def get_latest_log_entries(self, num_lines=10):
+        """ Retrieve the last few lines from the log file """
+        try:
+            with open(LATEST_LOG_FILE, 'r') as f:
+                return ''.join(f.readlines()[-num_lines:])
+        except Exception as e:
+            return f"An error occurred: {str(e)}"
 
 if __name__ == "__main__":
     app = YouTubeDownloaderGUI()

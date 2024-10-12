@@ -1,4 +1,5 @@
 import os
+import glob
 from tkinter import messagebox
 
 def calculate_directory_size(directory):
@@ -22,3 +23,12 @@ def clear_directory(directory):
 def create_directories(directories):
     for directory in directories:
         os.makedirs(directory, exist_ok=True)
+
+def trim_logs_directory(directory):
+    files = glob.glob(os.path.join(directory, "*"))
+    files.sort(key=os.path.getmtime)
+    
+    while len(files) > 4:
+        os.remove(files[0])
+        files.pop(0)
+    
