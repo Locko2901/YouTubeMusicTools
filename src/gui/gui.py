@@ -27,8 +27,8 @@ create_directories([CONFIG_DIR, DOWNLOAD_DIR, OUTPUT_DIR, LOG_DIR])
 trim_logs_directory(LOG_DIR)
 
 class CustomTimedRotatingFileHandler(TimedRotatingFileHandler):
-    def __init__(self, filename, backupCount=5, **kwargs):
-        super().__init__(filename, backupCount=backupCount, **kwargs)
+    def __init__(self, filename, **kwargs):
+        super().__init__(filename, encoding='utf-8', **kwargs)
 
     def doRollover(self):
         super().doRollover()
@@ -79,8 +79,8 @@ log_queue = Queue(-1)
 queue_handler = QueueHandler(log_queue)
 logger.addHandler(queue_handler)
 
-file_handler = CustomTimedRotatingFileHandler(LATEST_LOG_FILE, when='midnight', backupCount=5)
-file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+file_handler = CustomTimedRotatingFileHandler(LATEST_LOG_FILE)
+file_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
 
 listener = QueueListener(log_queue, file_handler)
 listener.start()
