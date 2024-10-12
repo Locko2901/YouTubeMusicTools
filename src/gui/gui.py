@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import shutil
 import sys
 import threading
 import uuid
@@ -40,7 +41,6 @@ class CustomTimedRotatingFileHandler(TimedRotatingFileHandler):
         if os.path.exists(self.baseFilename):
             os.remove(self.baseFilename)
         
-        # Attempt to create a symbolic link
         try:
             os.symlink(new_filename, self.baseFilename)
         except OSError as e:
@@ -93,9 +93,6 @@ try:
     sys.stderr = open(sys.stderr.fileno(), mode='w', encoding='utf-8', buffering=1)
 except Exception:
     pass
-
-sys.stdout = StreamToLogger(logger, logging.INFO)
-sys.stderr = StreamToLogger(logger, logging.ERROR)
 
 class YouTubeDownloaderGUI:
     def __init__(self):
