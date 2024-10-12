@@ -5,6 +5,7 @@ nuitka-crash-report.xml
 .venv/
 config/
 data/
+logs/
 build/
 main.onefile-build/
 main.build/

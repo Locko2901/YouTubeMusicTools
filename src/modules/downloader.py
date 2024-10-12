@@ -47,9 +47,16 @@ def merge_files(playlist_name, downloaded_files, download_dir="./data/downloads"
                 for filename in downloaded_files:
                     path = os.path.abspath(os.path.join(download_dir, filename))
                     f.write(f"file '{path}'\n")
-            
+
             output_path = os.path.abspath(os.path.join(output_dir, f"{playlist_name}.mp3"))
-            subprocess.run(['ffmpeg', '-y', '-f', 'concat', '-safe', '0', '-i', 'filelist.txt', '-c', 'copy', output_path], check=True)
+
+            creationflags = subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0
+
+            subprocess.run(
+                ['ffmpeg', '-y', '-f', 'concat', '-safe', '0', '-i', 'filelist.txt', '-c', 'copy', output_path],
+                check=True,
+                creationflags=creationflags
+            )
             print(f"All files have been merged into {output_path}")
         
         except Exception as e:
