@@ -8,8 +8,8 @@ from yt_dlp.utils import DownloadError
 # Configure logger once at the module level
 logger = logging.getLogger("YouTubeDownloader")
 logger.setLevel(logging.INFO)
-if not logger.handlers:  # Ensure no duplicate handlers
-    ch = logging.StreamHandler()  # Console handler
+if not logger.handlers:
+    ch = logging.StreamHandler()
     ch.setLevel(logging.INFO)
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     ch.setFormatter(formatter)

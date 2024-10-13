@@ -98,7 +98,7 @@ class YouTubeDownloaderGUI:
     def __init__(self):
         self.root = CTk()
         set_appearance_mode("dark")
-        self.root.title('YouTube Playlist Downloader')
+        self.root.title('YouTube Music Tools')
 
         base_path = os.path.abspath("./media")
 
