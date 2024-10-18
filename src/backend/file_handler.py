@@ -1,6 +1,10 @@
 import os
 import re
 
+from tools.logger import get_logger
+
+logger = get_logger()
+
 def sanitize_filename(name, max_length=255):
     """Sanitize a string to be used as a safe file name."""
     name = name.lower()
@@ -24,6 +28,6 @@ def write_to_file(videos, playlist_name):
             for title, artist, video_id in videos:
                 file.write(f'Title: {title}\nArtist: {artist}\nVideo ID: {video_id}\n\n')
         
-        print(f'Playlist titles and artists have been written to {os.path.abspath(filepath)}.')
+        logger.info(f'Playlist titles and artists have been written to {os.path.abspath(filepath)}.')
     except IOError as e:
-        print(f"An error occurred while writing to the file: {e}")
+        logger.error(f"An error occurred while writing to the file: {e}")

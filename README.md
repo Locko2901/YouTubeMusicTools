@@ -8,7 +8,7 @@ This app requires the YouTube Data API v3 key and a playlist ID. It will generat
 
 ## Preview
 
-![Project Screenshot](https://github.com/Locko2901/YouTubeMusicTools/blob/main/media/preview.png)
+![Project Screenshot](https://github.com/Locko2901/YouTubeMusicTools/blob/main/assets/images/preview.png)
 
 ## Prerequisites
 
@@ -63,9 +63,9 @@ You can download the zip containing the executable from [Releases](https://githu
 
         ```bash
         python -m nuitka --mingw64 --standalone --windows-console-mode=disable \
-        --include-data-files=media/img.ico=media/img.ico --enable-plugin=tk-inter \
+        --include-data-files=assets/icons/img.ico=assets/icons/img.ico --enable-plugin=tk-inter \
         --nofollow-import-to=yt_dlp.extractor.lazy_extractors \
-        --windows-icon-from-ico=media/img.ico --output-dir=ytmtools.dist \
+        --windows-icon-from-ico=assets/icons/img.ico --output-dir=ytmtools.dist \
         --output-filename=ytmtools src/main.py
         ```
 
@@ -74,7 +74,7 @@ You can download the zip containing the executable from [Releases](https://githu
         ```bash
         python -m nuitka --mingw64 --enable-plugin=tk-inter --follow-imports \
         --nofollow-import-to=yt_dlp.extractor.lazy_extractors \
-        --windows-icon-from-ico=media/img.ico --output-filename=ytmtools src/main.py
+        --windows-icon-from-ico=assets/icons/img.ico --output-filename=ytmtools src/main.py
         ```
 
 ## License
