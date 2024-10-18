@@ -1,19 +1,13 @@
-import subprocess
 import os
+import subprocess
 import uuid
-import logging
+
 from yt_dlp import YoutubeDL
 from yt_dlp.utils import DownloadError
 
-# Configure logger once at the module level
-logger = logging.getLogger("YouTubeDownloader")
-logger.setLevel(logging.INFO)
-if not logger.handlers:
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.INFO)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
+from tools.logger import get_logger
+
+logger = get_logger()
 
 def download_videos(videos, download_dir="./data/downloads"):
     os.makedirs(download_dir, exist_ok=True)
