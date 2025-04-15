@@ -1,41 +1,37 @@
 import traceback
-
-import googleapiclient
-from googleapiclient import discovery
+from yt_dlp import YoutubeDL
 
 from tools.logger import get_logger
 
 logger = get_logger()
 
-def get_youtube_service(api_key):
-    """Create and return a YouTube service client."""
+def get_youtube_client():
+    """Create and return a YoutubeDL client."""
     try:
-        discovery_url = 'https://www.googleapis.com/discovery/v1/apis/youtube/v3/rest'
-        service = discovery.build('youtube', 'v3', developerKey=api_key, discoveryServiceUrl=discovery_url)
-        logger.info("YouTube service client created successfully.")
-        return service
-    except googleapiclient.errors.UnknownApiNameOrVersion as e:
-        error_message = f"Error occurred while building YouTube service client: {e.__class__.__name__}: {e}"
-        detailed_traceback = traceback.format_exc()
-        logger.error(error_message)
-        logger.debug(detailed_traceback)
-        raise
+        ydl_opts = {
+            'quiet': True,
+            'no_warnings': True,
+            'extract_flat': 'in_playlist',
+        }
+        client = YoutubeDL(ydl_opts)
+        logger.info("YoutubeDL client created successfully.")
+        return client
     except Exception as e:
-        error_message = f"Error occurred while building YouTube service client: {e.__class__.__name__}: {e}"
+        error_message = f"Error occurred while creating YoutubeDL client: {e.__class__.__name__}: {e}"
         detailed_traceback = traceback.format_exc()
         logger.error(error_message)
         logger.debug(detailed_traceback)
         raise
 
-def get_playlist_name(api_key, playlist_id):
+def get_playlist_name(playlist_id):
     """Fetch the name of a YouTube playlist given its ID."""
     try:
-        youtube = get_youtube_service(api_key)
-        request = youtube.playlists().list(part='snippet', id=playlist_id)
-        response = request.execute()
+        client = get_youtube_client()
+        playlist_url = f'https://www.youtube.com/playlist?list={playlist_id}'
+        info = client.extract_info(playlist_url, download=False)
         
-        if response['items']:
-            playlist_name = response['items'][0]['snippet']['title']
+        if info and 'title' in info:
+            playlist_name = info['title']
             logger.info(f"Playlist name fetched successfully: {playlist_name}")
             return playlist_name
         else:
@@ -48,34 +44,23 @@ def get_playlist_name(api_key, playlist_id):
         logger.debug(detailed_traceback)
         raise
 
-def get_playlist_items(api_key, playlist_id):
+def get_playlist_items(playlist_id):
     """Fetch the items (videos) from a YouTube playlist."""
     try:
-        youtube = get_youtube_service(api_key)
-        request = youtube.playlistItems().list(part='snippet', playlistId=playlist_id, maxResults=50)
-        response = request.execute()
+        client = get_youtube_client()
+        playlist_url = f'https://www.youtube.com/playlist?list={playlist_id}'
+        info = client.extract_info(playlist_url, download=False)
 
         videos = []
 
-        while response:
-            for item in response.get('items', []):
-                title = item['snippet']['title']
-                artist = item['snippet'].get('videoOwnerChannelTitle', 'Unknown Artist')
-                video_id = item['snippet']['resourceId'].get('videoId')
+        if 'entries' in info:
+            for entry in info['entries']:
+                title = entry.get('title', 'Unknown Title')
+                artist = entry.get('uploader', 'Unknown Artist')
+                video_id = entry.get('id')
                 
                 if video_id:
                     videos.append((title, artist, video_id))
-
-            if 'nextPageToken' in response:
-                request = youtube.playlistItems().list(
-                    part='snippet',
-                    playlistId=playlist_id,
-                    maxResults=50,
-                    pageToken=response['nextPageToken']
-                )
-                response = request.execute()
-            else:
-                break
 
         if videos:
             logger.info(f"Fetched {len(videos)} videos from playlist ID: {playlist_id}")
