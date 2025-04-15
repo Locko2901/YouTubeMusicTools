@@ -57,3 +57,6 @@ def clear_download_directory(app):
     clear_directory(DOWNLOAD_DIR)
     app.update_directory_sizes()
     logger.info("Download directory cleared.")
+
+def cleanup_partial_downloads(self):
+        clear_download_directory(self)
