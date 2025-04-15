@@ -4,7 +4,7 @@ A simple application to process YouTube (music) playlists.
 
 ## Overview
 
-This app requires the YouTube Data API v3 key and a playlist ID. It will generate a `.txt` file containing the title, artist, and video ID of each song in the playlist. The app then offers the option to download all songs and use `ffmpeg` to combine them into one large MP3 file.
+This app will generate a `.txt` file containing the title, artist, and video ID of each song in the playlist. The app then offers the option to download all songs and use `ffmpeg` to combine them into one large MP3 file.
 
 ## Preview
 
@@ -12,17 +12,7 @@ This app requires the YouTube Data API v3 key and a playlist ID. It will generat
 
 ## Prerequisites
 
-- YouTube Data API v3 key
 - `ffmpeg` installed on your system
-
-### Getting the YouTube Data API v3 Key
-
-1. Visit the [Google Developers Console](https://console.developers.google.com/).
-2. Create a new project.
-3. Navigate to "APIs & Services" > "Library", and enable the "YouTube Data API v3".
-4. Go to "Credentials" and create an API key.
-
-For a detailed guide, refer to [this tutorial](https://developers.google.com/youtube/registering_an_application).
 
 ### Installing FFmpeg
 
@@ -36,8 +26,7 @@ For a detailed guide, refer to [this tutorial](https://developers.google.com/you
 ## Usage
 
 1. Ensure `ffmpeg` is installed and accessible from the command line.
-2. Obtain your API key and playlist ID as described above.
-3. Run the application. The first time you use it, you will be prompted to provide your API key and playlist ID. The API key will be saved for future use.
+3. Run the application and provide your playlist ID.
 4. The app will generate a `.txt` file and ask if you'd like to download the playlist.
 5. If you answer "yes", the app will download the playlist and combine it into an MP3 file.
 
