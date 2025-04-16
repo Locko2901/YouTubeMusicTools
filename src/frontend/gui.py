@@ -30,6 +30,10 @@ class YouTubeDownloaderGUI:
 
         self.cancel_event = threading.Event()
 
+        self.download_dir = os.path.abspath(DOWNLOAD_DIR)
+        self.output_dir = os.path.abspath(OUTPUT_DIR)
+        self.overall_dir = os.path.abspath(ROOT_DIR)
+
         create_main_layout(self)
 
         reset_progress(self)
