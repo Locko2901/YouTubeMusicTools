@@ -1,5 +1,7 @@
 import os
+import platform
 import shutil
+import subprocess
 from tkinter import ACTIVE, END, filedialog, messagebox
 
 from frontend.config import DOWNLOAD_DIR, OUTPUT_DIR
@@ -21,6 +23,22 @@ def list_files(app):
     except FileNotFoundError:
         logger.error(f"The directory {OUTPUT_DIR} does not exist.")
         messagebox.showerror("Error", f"The directory {OUTPUT_DIR} does not exist.")
+
+def open_file(app):
+    selected_file = app.file_listbox.get(ACTIVE).strip()
+    file_path = os.path.join(OUTPUT_DIR, selected_file)
+    if os.path.isfile(file_path):
+        try:
+            logger.info(f"Opening file {file_path}")
+            if platform.system() == 'Windows':
+                os.startfile(file_path)
+            elif platform.system() == 'Darwin':
+                subprocess.run(['open', file_path])
+            else: 
+                subprocess.run(['xdg-open', file_path])
+        except Exception as e:
+            logger.error(f"Failed to open file {file_path}: {str(e)}")
+            messagebox.showerror("Error", f"Failed to open file: {str(e)}")
 
 def move_file(app):
     selected_file = app.file_listbox.get(ACTIVE).strip()
@@ -51,6 +69,17 @@ def delete_file(app):
         except Exception as e:
             logger.error(f"Failed to delete file {selected_file}: {str(e)}")
             messagebox.showerror("Error", f"Failed to delete file: {str(e)}")
+
+def open_directory(directory):
+    try:
+        if platform.system() == 'Windows':
+            os.startfile(directory)
+        elif platform.system() == 'Darwin':
+            subprocess.call(['open', directory])
+        else:
+            subprocess.call(['xdg-open', directory])
+    except Exception as e:
+        logger.error(f"Failed to open directory {directory}: {e}")
 
 def clear_download_directory(app):
     logger.info("Clearing download directory.")

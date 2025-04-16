@@ -1,7 +1,7 @@
 from tkinter import Listbox
 
 from customtkinter import *
-from frontend.file_management import clear_download_directory, delete_file, list_files, move_file
+from frontend.file_management import clear_download_directory, delete_file, list_files, move_file, open_directory, open_file
 from tools.logger import get_logger
 
 logger = get_logger()
@@ -61,9 +61,11 @@ def create_progress_section(app, parent):
         command=app.download_and_process, 
         fg_color="#C2185B",
         hover_color="#880E4F",
+        font=BUTTON_FONT,
+        border_width=2,
+        border_color="#FF3366"
     )
     app.download_button.pack(pady=10, fill='x')
-
 
 def update_scrollbar_visibility(app, scrollbar):
     if app.file_listbox.yview() == (0.0, 1.0):
@@ -89,6 +91,7 @@ def create_file_management_section(app, parent):
         highlightthickness=0
     )
 
+    app.file_listbox.bind("<Double-Button-1>", lambda _event: open_file(app))
     app.file_listbox.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
 
     file_scrollbar = CTkScrollbar(
@@ -107,17 +110,6 @@ def create_file_management_section(app, parent):
 
 def setup_file_buttons(app, parent):
     logger.info("Setting up file management buttons")
-    refresh_button = CTkButton(
-        parent,
-        text="Refresh File List",
-        command=lambda: list_files(app),
-        fg_color="#C2185B",
-        hover_color="#880E4F",
-        font=BUTTON_FONT,
-        border_width=2,
-        border_color="#FF3366"
-    )
-    refresh_button.pack(pady=5, padx=15, fill='x')
 
     move_button = CTkButton(
         parent,
@@ -159,7 +151,10 @@ def create_size_labels(app, parent):
     logger.info("Creating size labels")
     app.download_size_label = CTkLabel(parent, text="", text_color="#FF3366", font=LABEL_FONT)
     app.download_size_label.pack(pady=5, padx=15)
+    app.download_size_label.bind("<Button-1>", lambda event: open_directory(app.download_dir))
     app.output_size_label = CTkLabel(parent, text="", text_color="#FF3366", font=LABEL_FONT)
     app.output_size_label.pack(pady=5, padx=15)
+    app.output_size_label.bind("<Button-1>", lambda event: open_directory(app.output_dir))
     app.overall_size_label = CTkLabel(parent, text="", text_color="#FF3366", font=LABEL_FONT)
     app.overall_size_label.pack(pady=5, padx=15)
+    app.overall_size_label.bind("<Button-1>", lambda event: open_directory(app.overall_dir))
