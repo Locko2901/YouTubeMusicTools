@@ -3,7 +3,6 @@ main.cmd
 config.json
 nuitka-crash-report.xml
 .venv/
-config/
 data/
 logs/
 build/

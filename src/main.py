@@ -1,5 +1,5 @@
-from frontend.gui import YouTubeDownloaderGUI
-from tools.logger import LoggerSetup
+from gui.app import YouTubeDownloaderGUI
+from utils.logging import LoggerSetup
 
 def initialize_logging():
     LATEST_LOG_FILE = 'latest.log'
@@ -10,4 +10,3 @@ if __name__ == '__main__':
     initialize_logging()
     app = YouTubeDownloaderGUI()
     app.run()
-    
