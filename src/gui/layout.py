@@ -145,7 +145,7 @@ def setup_file_buttons(app, parent):
         ("Refresh File List", lambda: list_files(app)),
         ("Show File in Directory", lambda: show_file_in_directory(app)),
         ("Delete Selected File", lambda: delete_file(app)),
-        ("Remove FFMPEG Cache", lambda: clear_encoder_detection_cache()),
+        ("Remove FFmpeg Cache", lambda: clear_encoder_detection_cache()),
     ]
     for text, command in buttons:
         CTkButton(
