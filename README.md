@@ -50,7 +50,7 @@ Paste either the full URL or just the ID — both work.
 ### Prebuilt Executable
 
 Download the latest zip from [Releases](https://github.com/Locko2901/YouTubeMusicTools/releases).  
-> Note: Binaries are unsigned — if you prefer build from source.
+> Note: Binaries are unsigned — if you prefer, build from source.
 
 ### Build from Source
 
