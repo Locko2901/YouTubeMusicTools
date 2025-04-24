@@ -5,3 +5,5 @@ OUTPUT_DIR = './data/output'
 LOG_DIR = './logs'
 ROOT_DIR = '.'
 LATEST_LOG_FILE = os.path.join(LOG_DIR, 'latest.log')
+
+DEFAULT_BG_IMAGE = './assets/images/default.png'
