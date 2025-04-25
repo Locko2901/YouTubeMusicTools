@@ -1,5 +1,7 @@
-[![MIT License](https://img.shields.io/github/license/Locko2901/YouTubeMusicTools)](LICENSE)
+[![Made with Python](https://img.shields.io/badge/Made%20with-Python-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![Built with Nuitka](https://img.shields.io/badge/Built%20with-Nuitka-blue)](https://nuitka.net/)
 [![Latest Release](https://img.shields.io/github/v/release/Locko2901/YouTubeMusicTools)](https://github.com/Locko2901/YouTubeMusicTools/releases)
+[![MIT License](https://img.shields.io/github/license/Locko2901/YouTubeMusicTools)](LICENSE)
 
 # YouTube (Music) Playlist Tools
 
@@ -36,6 +38,21 @@ A simple application to process YouTube (and YouTube Music) playlists and export
 ## Prerequisites
 
 - [FFmpeg](https://ffmpeg.org/download.html) installed and available in your system `PATH`.
+
+> **Tip for Windows users:**  
+> 
+> The easiest (and safest) way to install FFmpeg on Windows is with [winget](https://learn.microsoft.com/en-us/windows/package-manager/winget/), the official Windows Package Manager.  
+>  
+> With winget, you get:
+> - Automatic download of the latest official FFmpeg release from trusted sources
+> - System-wide installation — no manual unzipping, copying, or adding to PATH
+> - Easy updates and uninstalls in the future  
+>
+> **To install FFmpeg via winget, open PowerShell or Command Prompt and run:**  
+> ```
+> winget install ffmpeg
+> ```
+> This is *way* easier and safer than manually downloading and extracting the binaries. 
 
 ## Finding Your Playlist ID
 
@@ -108,5 +125,4 @@ _This app is, aside from one core feature, essentially a GUI wrapper around `yt-
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for deta
-ils.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
