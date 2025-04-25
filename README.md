@@ -96,6 +96,7 @@ If something breaks:
 ## Roadmap
 
 - [ ] Parallel download (maybe someday)
+- [ ] Better threading, so GUI is less laggy (also maybe someday)
 
 ## Credits
 
