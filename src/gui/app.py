@@ -1,4 +1,5 @@
 import os
+import subprocess
 import threading
 from tkinter import messagebox, StringVar
 from customtkinter import *
@@ -13,6 +14,14 @@ create_directories([DOWNLOAD_DIR, OUTPUT_DIR, LOG_DIR])
 trim_logs_directory(LOG_DIR)
 logger = get_logger()
 
+if os.name == 'nt':
+    _orig_popen = subprocess.Popen
+    class NoConsolePopen(subprocess.Popen):
+        def __init__(self, *args, **kwargs):
+            kwargs['creationflags'] = kwargs.get('creationflags', 0) | subprocess.CREATE_NO_WINDOW
+            _orig_popen.__init__(self, *args, **kwargs)
+    subprocess.Popen = NoConsolePopen
+
 class YouTubeDownloaderGUI:
     """
     Main Application GUI for YouTube Music Tools.
@@ -20,11 +29,14 @@ class YouTubeDownloaderGUI:
     """
 
     def __init__(self):
+        self.logger = logger
+        self.check_ffmpeg_availability()
+
+        # Window setup
         self.root = CTk()
         set_appearance_mode("dark")
         self.root.title('YouTube Music Tools')
         self._set_icon()
-        self.logger = logger
 
         # Threading and event flags for concurrent operations/cancels
         self.cancel_event = threading.Event()
@@ -57,6 +69,23 @@ class YouTubeDownloaderGUI:
             self.root.iconbitmap(icon_path)
         except Exception as e:
             self.logger.warning(f"Could not set icon - {e}")
+
+    def check_ffmpeg_availability(self):
+        try:
+            subprocess.run(
+                ['ffmpeg', '-version'],
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                text=True, check=True
+            )
+            self.logger.info(f"FFmpeg is available.")
+        except subprocess.CalledProcessError:
+            self.logger.warning("FFmpeg is not available. Please install it.")
+            messagebox.showerror("Error", "FFmpeg is not available. Please install it.")
+            exit(1)
+        except FileNotFoundError:
+            self.logger.warning("FFmpeg executable not found. Please install it and ensure it's in your PATH.")
+            messagebox.showerror("Error", "FFmpeg executable not found. Please install it and ensure it's in your PATH.")
+            exit(1)
 
     def format_size(self, size):
         for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
@@ -132,7 +161,6 @@ class YouTubeDownloaderGUI:
         self.progress_info_frame.pack_forget()
 
     def download_and_process(self):
-        # Now delegates the workflow to pipeline.py
         download_and_process_pipeline(self, self.logger)
 
     def run(self):
