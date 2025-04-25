@@ -561,8 +561,8 @@ def perform_conversion(app):
                 ):
                     general_encoder_error = (
                         "Could not open hardware encoder. Causes include a resolution too large for your GPU/"
-                        "hardware, or unsupported codec/settings.\n"
-                        "Try changing image/video size or use a software encoder (like libx264)."
+                        "hardware, unsupported codec/settings or an outdated driver version.\n"
+                        "Try changing image/video size, updating your drivers or use a software encoder (like libx264)."
                     )
                 # Check for progress
                 if line.startswith("out_time_ms="):
@@ -615,18 +615,18 @@ def perform_conversion(app):
                 app.root.after(0, lambda: app.update_directory_sizes())
                 # Prioritized error messages
                 if width_exceed_error:
-                    logger.error(width_exceed_error)
+                    logger.error(width_exceed_error + "\nTraceback:\n" + "\n".join(ffmpeg_output_lines))
                     app.root.after(0, lambda: messagebox.showerror("Image/video too large!", width_exceed_error))
                 elif height_exceed_error:
-                    logger.error(height_exceed_error)
+                    logger.error(height_exceed_error + "\nTraceback:\n" + "\n".join(ffmpeg_output_lines))
                     app.root.after(0, lambda: messagebox.showerror("Image/video too large!", height_exceed_error))
                 elif general_encoder_error:
-                    logger.error(general_encoder_error)
+                    logger.error(general_encoder_error + "\nTraceback:\n" + "\n".join(ffmpeg_output_lines))
                     app.root.after(0, lambda: messagebox.showerror("Encoder problem", general_encoder_error))
                 else:
-                    error_msg = "FFmpeg failed. Log:\n" + "\n".join(ffmpeg_output_lines)
-                    logger.error(error_msg)
-                    app.root.after(0, lambda: messagebox.showerror("Error", "Conversion failed. See log for details."))
+                    error_msg = "FFmpeg failed. Check the log for more details."
+                    logger.error("FFmpeg failed. Log:\n" + "\n".join(ffmpeg_output_lines))
+                    app.root.after(0, lambda: messagebox.showerror("Error", error_msg))
             elif retcode == 0 and not was_cancelled:
                 logger.info(f"Conversion complete: {output_path}")
                 app.root.after(0, lambda: list_files(app))
