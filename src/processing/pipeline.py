@@ -1,4 +1,3 @@
-# pipeline.py
 import threading
 from tkinter import messagebox
 from download.audio_downloader import download_videos, merge_files
