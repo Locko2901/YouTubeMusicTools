@@ -13,3 +13,5 @@ ytmtools.dist/
 output/
 downloads/
 __pycache__/
+installer/YTMTools-Setup.exe
+ffmpeg_encoder_cache.json
