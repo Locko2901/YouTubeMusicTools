@@ -80,13 +80,13 @@ Download the latest zip from [Releases](https://github.com/Locko2901/YouTubeMusi
 
 2. Compile with Nuitka:
 
-- **For a non-standalone build:**
+- **For a standalone build:**
 
     ```bash
     python -m nuitka --mingw64 --standalone --windows-console-mode=disable --include-data-files=assets/icons/img.ico=assets/icons/img.ico --include-data-files=assets/images/default.png=assets/images/default.png --enable-plugin=tk-inter --nofollow-import-to=yt_dlp.extractor.lazy_extractors --windows-icon-from-ico=assets/icons/img.ico --output-dir=ytmtools.dist --output-filename=ytmtools src/main.py
     ```
 
-- **For a standalone build:**
+- **For a non-standalone build:**
 
     ```bash
     python -m nuitka --mingw64 --enable-plugin=tk-inter --follow-imports --nofollow-import-to=yt_dlp.extractor.lazy_extractors --windows-icon-from-ico=assets/icons/img.ico --output-filename=ytmtools src/main.py
