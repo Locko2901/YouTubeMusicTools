@@ -33,7 +33,7 @@ A simple application to process YouTube (and YouTube Music) playlists and export
 - **Encoder caching**: Caches available `ffmpeg` encoders and presets for faster future runs.
 - **Cache management**: Includes a button to clear the encoder cache if needed.
 
-> On first launch, building the encoder cache may take a minute or two.
+> On first launch, building the encoder cache may take a second.
 
 ## Prerequisites
 
