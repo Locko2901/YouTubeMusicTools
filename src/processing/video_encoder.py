@@ -11,7 +11,7 @@ from tkinter import ACTIVE, filedialog, messagebox
 from customtkinter import *
 from PIL import Image
 from mutagen.mp3 import MP3
-from config.settings import OUTPUT_DIR, DEFAULT_BG_IMAGE
+from config.settings import OUTPUT_DIR, DEFAULT_BG_IMAGE, ROOT_DIR
 from services.file_service import list_files
 from utils.logging import get_logger
 
@@ -36,7 +36,8 @@ if os.name == 'nt':
 # =================== FFmpeg Encoder Cache (Ram/Disk) ===================
 _ENCODER_DETECTION_CACHE = None
 _ENCODER_DETECTION_LOCK = threading.Lock()
-_ENCODER_CACHE_PATH = os.path.join(os.path.expanduser("~"), ".ffmpeg_encoder_cache.json")
+#_ENCODER_CACHE_PATH = os.path.join(os.path.expanduser("~"), ".ffmpeg_encoder_cache.json")
+_ENCODER_CACHE_PATH = os.path.join(ROOT_DIR, "ffmpeg_encoder_cache.json")
 
 def _get_ffmpeg_version():
     try:
