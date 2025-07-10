@@ -2,16 +2,21 @@ import os
 import subprocess
 import threading
 from tkinter import messagebox, StringVar
-from customtkinter import *
+
+from customtkinter import CTk, set_appearance_mode
+
+import config.settings as cs
+from config.settings import PATHS_INIT_LOGS
+from gui.layout import create_main_layout, handle_download_button_click, handle_mp4_button_click
 from processing.pipeline import download_and_process_pipeline
 from processing.video_encoder import get_available_encoders, make_mp4
+from services.file_service import (
+    calculate_directory_size,
+    list_files,
+    trim_logs_directory
+)
 from utils.logging import get_logger
-from config.settings import DOWNLOAD_DIR, OUTPUT_DIR, LOG_DIR, ROOT_DIR
-from services.file_service import list_files, create_directories, trim_logs_directory
-from gui.layout import create_main_layout, handle_download_button_click, handle_mp4_button_click
 
-create_directories([DOWNLOAD_DIR, OUTPUT_DIR, LOG_DIR])
-trim_logs_directory(LOG_DIR)
 logger = get_logger()
 
 if os.name == 'nt':
@@ -30,6 +35,12 @@ class YouTubeDownloaderGUI:
 
     def __init__(self):
         self.logger = logger
+
+        # Log collected messages
+        for msg in PATHS_INIT_LOGS:
+            self.logger.info(msg)
+
+        trim_logs_directory(cs.LOG_DIR)
         self.check_ffmpeg_availability()
 
         # Window setup
@@ -45,9 +56,12 @@ class YouTubeDownloaderGUI:
         self.canceling = False
 
         # Directory configuration
-        self.download_dir = os.path.abspath(DOWNLOAD_DIR)
-        self.output_dir = os.path.abspath(OUTPUT_DIR)
-        self.overall_dir = os.path.abspath(ROOT_DIR)
+        self.download_dir = os.path.abspath(cs.DOWNLOAD_DIR)
+        self.output_dir = os.path.abspath(cs.OUTPUT_DIR)
+        self.root_dir = os.path.abspath(cs.ROOT_DIR)
+        self.appdata_dir = os.path.abspath(cs.APPDATA_DIR)
+
+        self.is_compiled = cs.IS_COMPILED
         
         # Encoding/Conversion state
         self.encoders = get_available_encoders()
@@ -94,19 +108,16 @@ class YouTubeDownloaderGUI:
             size /= 1024
         return f"{size:.2f} PB"
 
-    def calculate_directory_size(self, path):
-        total = 0
-        for dirpath, dirnames, filenames in os.walk(path):
-            for f in filenames:
-                fp = os.path.join(dirpath, f)
-                if os.path.isfile(fp):
-                    total += os.path.getsize(fp)
-        return total
-
     def update_directory_sizes(self):
-        download_size = self.calculate_directory_size(self.download_dir)
-        output_size = self.calculate_directory_size(self.output_dir)
-        overall_size = self.calculate_directory_size(self.overall_dir)
+        download_size = calculate_directory_size(self.download_dir)
+        output_size = calculate_directory_size(self.output_dir)
+        
+        # Calculate combined size for overall
+        app_dir_size = calculate_directory_size(self.root_dir)
+        data_dir_size = calculate_directory_size(self.appdata_dir) if self.is_compiled else 0
+        overall_size = app_dir_size + data_dir_size
+        self.logger.info(f"Overall dir size: {overall_size} based on {app_dir_size} and {data_dir_size}")
+        
         self.download_size_label.configure(text=f"Download Directory Size: {self.format_size(download_size)}")
         self.output_size_label.configure(text=f"Output Directory Size: {self.format_size(output_size)}")
         self.overall_size_label.configure(text=f"Overall Size: {self.format_size(overall_size)}")
