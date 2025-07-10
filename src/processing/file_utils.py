@@ -1,5 +1,8 @@
 import os
 import re
+
+import config.settings as cs
+
 from utils.logging import get_logger
 
 logger = get_logger()
@@ -19,7 +22,7 @@ def sanitize_filename(name: str, max_length: int = 255) -> str:
     sanitized_name = re.sub(r'\s+', '_', sanitized_name).strip('_')
     return sanitized_name[:max_length]
 
-def write_to_file(videos, playlist_name, output_dir='./data/output'):
+def write_to_file(videos, playlist_name):
     """
     Write video information (title, artist, video_id) to a text file named after the playlist.
 
@@ -28,6 +31,7 @@ def write_to_file(videos, playlist_name, output_dir='./data/output'):
         playlist_name (str): The display/name of the playlist.
         output_dir (str): Directory where the output file will be placed.
     """
+    output_dir = cs.OUTPUT_DIR
     sanitized_name = sanitize_filename(playlist_name)
     filename = sanitized_name + '.txt'
     os.makedirs(output_dir, exist_ok=True)

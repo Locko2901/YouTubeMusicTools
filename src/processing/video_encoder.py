@@ -1,17 +1,17 @@
+import hashlib
+import json
 import os
+import queue
 import re
 import subprocess
 import threading
-import queue
 import time
-import json
-import hashlib
-
 from tkinter import ACTIVE, filedialog, messagebox
-from customtkinter import *
-from PIL import Image
+
 from mutagen.mp3 import MP3
-from config.settings import OUTPUT_DIR, DEFAULT_BG_IMAGE, ROOT_DIR
+from PIL import Image
+
+import config.settings as cs
 from services.file_service import list_files
 from utils.logging import get_logger
 
@@ -33,11 +33,11 @@ if os.name == 'nt':
             _orig_popen.__init__(self, *args, **kwargs)
     subprocess.Popen = NoConsolePopen
 
-# =================== FFmpeg Encoder Cache (Ram/Disk) ===================
+# =================== FFmpeg Encoder Cache ===================
 _ENCODER_DETECTION_CACHE = None
 _ENCODER_DETECTION_LOCK = threading.Lock()
-#_ENCODER_CACHE_PATH = os.path.join(os.path.expanduser("~"), ".ffmpeg_encoder_cache.json")
-_ENCODER_CACHE_PATH = os.path.join(ROOT_DIR, "ffmpeg_encoder_cache.json")
+def get_encoder_cache_path():
+    return os.path.join(cs.APPDATA_DIR, "ffmpeg_encoder_cache.json")
 
 def _get_ffmpeg_version():
     try:
@@ -70,6 +70,7 @@ def _get_cache_key():
     return hashlib.md5(key_str.encode("utf-8")).hexdigest()
 
 def _read_cache_file():
+    _ENCODER_CACHE_PATH = get_encoder_cache_path()
     if not os.path.exists(_ENCODER_CACHE_PATH):
         return None, None, None
     try:
@@ -81,6 +82,7 @@ def _read_cache_file():
         return None, None, None
 
 def _write_cache_file(encoders, cache_key, presets=None):
+    _ENCODER_CACHE_PATH = get_encoder_cache_path()
     try:
         with open(_ENCODER_CACHE_PATH, "w", encoding="utf8") as f:
             json.dump({
@@ -89,10 +91,11 @@ def _write_cache_file(encoders, cache_key, presets=None):
                 "presets": presets if presets is not None else {}
             }, f)
     except Exception as e:
-        logger.warning(f"Could not write encoder cache: {e}")
+        logger.warning(f"Could not write encoder cache to {_ENCODER_CACHE_PATH}: {e}")
 
 def clear_encoder_detection_cache():
     """Call this to force re-detect encoders on next run."""
+    _ENCODER_CACHE_PATH = get_encoder_cache_path()
     global _ENCODER_DETECTION_CACHE
     with _ENCODER_DETECTION_LOCK:
         _ENCODER_DETECTION_CACHE = None
@@ -123,7 +126,8 @@ def get_available_encoders(force_refresh=False):
             # Disk cache
             file_key, cached, cached_presets = _read_cache_file()
             if file_key == cache_key and cached:
-                logger.info("Loaded FFmpeg encoder list from disk cache.")
+                # TODO: Compiled cache path is wrong
+                logger.info("Loaded FFmpeg encoder list from disk.")
                 _ENCODER_DETECTION_CACHE = cached
                 _ENCODER_PRESET_CACHE = cached_presets if cached_presets else {}
                 return cached
@@ -393,7 +397,7 @@ def make_mp4(app):
         app.reset_button()
         show_file_list(app)
         return False
-    mp3_path = os.path.join(OUTPUT_DIR, selected_file)
+    mp3_path = os.path.join(cs.OUTPUT_DIR, selected_file)
     if os.path.exists(os.path.splitext(mp3_path)[0] + '.mp4'):
         logger.warning(f"File already has a .mp4 counterpart: {mp3_path}")
         messagebox.showwarning("File Already Converted", "Selected file already has a .mp4 counterpart.")
@@ -406,7 +410,7 @@ def make_mp4(app):
         "Do you want to use the default background image?"
     )
     if use_default_bg:
-        background_image = DEFAULT_BG_IMAGE
+        background_image = cs.DEFAULT_BG_IMAGE
         if not os.path.exists(background_image):
             messagebox.showerror("Missing Default Image", "Default background image not found.")
             logger.error("Default background image missing.")
@@ -469,7 +473,7 @@ def perform_conversion(app):
         logger.warning("No video encoder selected.")
         return
     output_filename = os.path.splitext(os.path.basename(mp3_path))[0] + '.mp4'
-    output_path = os.path.join(OUTPUT_DIR, output_filename)
+    output_path = os.path.join(cs.OUTPUT_DIR, output_filename)
     app.progress_info_frame.pack(pady=10)
     app.progress_bar.set(0)
     app.progress_label.configure(text="0%")
@@ -495,8 +499,9 @@ def perform_conversion(app):
             creationflags = subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0
             # ========== GIF SUPPORT ==========
             if is_gif:
+                # loop the gif enough times to cover the audio
                 loop_count = int(total_duration // gif_length) + 1 if gif_length else 1
-                gif_fps_int = int(round(gif_fps)) if gif_fps else 25
+
                 command = [
                     'ffmpeg', '-y',
                     '-ignore_loop', '0',
@@ -505,20 +510,34 @@ def perform_conversion(app):
                     '-i', mp3_path,
                     '-c:a', 'copy',
                     '-shortest',
-                    '-pix_fmt', 'yuv420p',
-                    '-vf', 'format=rgb24',
-                    '-r', str(gif_fps_int),
+
+                    # scale to 1080p (preserve aspect ratio + pad), ensure yuv420p
+                    '-vf', (
+                        'scale=1920:1080:force_original_aspect_ratio=decrease,'
+                        'pad=1920:1080:(ow-iw)/2:(oh-ih)/2:color=black,'
+                        'format=yuv420p'
+                    ),
+
+                    # preserve the GIF's original per-frame timing
+                    '-vsync', '0',
+                    '-fflags', '+genpts',
                 ]
+
             else:
                 command = [
                     'ffmpeg', '-y',
-                    '-loop', '1', '-framerate', '1', '-i', background_image,
+                    '-loop', '1', '-framerate', '1',
+                    '-i', background_image,
                     '-i', mp3_path,
                     '-c:a', 'copy',
                     '-shortest',
-                    '-pix_fmt', 'yuv420p',
-                    '-vf', 'format=rgb24',
-                    '-r', '1',
+
+                    # scale to 1080p (preserve aspect ratio + pad), ensure yuv420p
+                    '-vf', (
+                        'scale=1920:1080:force_original_aspect_ratio=decrease,'
+                        'pad=1920:1080:(ow-iw)/2:(oh-ih)/2:color=black,'
+                        'format=yuv420p'
+                    ),
                 ]
             # Add video encoder and preset
             if any(hw in video_encoder for hw in ['nvenc', 'qsv', 'amf']):

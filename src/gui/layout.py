@@ -1,13 +1,18 @@
 from tkinter import Listbox, messagebox, StringVar
+
 from customtkinter import (
-    CTkFrame, CTkLabel, CTkEntry, CTkButton, CTkProgressBar,
-    CTkScrollbar, CTkOptionMenu, CTkRadioButton, CTkTabview
+    CTkButton, CTkEntry, CTkFrame, CTkLabel, CTkOptionMenu, 
+    CTkProgressBar, CTkRadioButton, CTkScrollbar, CTkTabview
+)
+
+from processing.video_encoder import (
+    clear_encoder_detection_cache, find_best_preset, 
+    get_dynamic_presets_for_encoder, make_mp4, perform_conversion
 )
 from services.file_service import (
-    delete_file, list_files,
-    open_directory, open_file, show_file_in_directory
+    delete_file, list_files, open_directory, 
+    open_file, show_file_in_directory
 )
-from processing.video_encoder import clear_encoder_detection_cache, find_best_preset, get_dynamic_presets_for_encoder, make_mp4, perform_conversion
 from utils.logging import get_logger
 
 logger = get_logger()
@@ -19,6 +24,7 @@ BASE_FONT = ("Arial", 12, "bold")
 LABEL_FONT = ("Arial", 12, "bold")
 BUTTON_FONT = ("Arial", 12, "bold")
 ENTRY_FONT = ("Arial", 12)
+
 BG_COLOR = "#1e1e28"
 BORDER_COLOR = "#FF3366"
 FG_BUTTON = "#C2185B"
@@ -226,7 +232,7 @@ def create_video_encoder_section(app):
 
     CTkLabel(
         app.encoder_section,
-        text="Preset (Optional — changing may reduce image quality)",
+        text="Preset (Optional - changing may reduce image quality)",
         font=LABEL_FONT,
         text_color=TEXT_COLOR
     ).pack(pady=(15, 5), padx=15, anchor="center")
@@ -326,4 +332,9 @@ def create_size_labels(app, parent):
     app.output_size_label.bind("<Button-1>", lambda event: open_directory(app.output_dir))
     app.overall_size_label = CTkLabel(parent, text="", text_color=TEXT_COLOR, font=LABEL_FONT)
     app.overall_size_label.pack(pady=5, padx=15)
-    app.overall_size_label.bind("<Button-1>", lambda event: open_directory(app.overall_dir))
+    def open_both_directories(_):
+        open_directory(app.root_dir)
+        if app.appdata_dir != app.root_dir:
+            open_directory(app.appdata_dir)
+
+    app.overall_size_label.bind("<Button-1>", open_both_directories)

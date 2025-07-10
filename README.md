@@ -5,15 +5,13 @@
 
 # YouTube (Music) Playlist Tools
 
-A simple application to process YouTube (and YouTube Music) playlists and export them as audio or video files — or just grab the track list.
+A simple application to process YouTube (and YouTube Music) playlists and export them as audio or video files - or just grab the track list.
 
 ## Table of Contents
 - [Preview](#preview)
 - [Features](#features)
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
-  - [Prebuilt Executable](#prebuilt-executable)
-  - [Build from Source](#build-from-source)
 - [Usage](#usage)
 - [Troubleshooting](#troubleshooting)
 - [Roadmap](#roadmap)
@@ -45,7 +43,7 @@ A simple application to process YouTube (and YouTube Music) playlists and export
 >  
 > With winget, you get:
 > - Automatic download of the latest official FFmpeg release from trusted sources
-> - System-wide installation — no manual unzipping, copying, or adding to PATH
+> - System-wide installation - no manual unzipping, copying, or adding to PATH
 > - Easy updates and uninstalls in the future  
 >
 > **To install FFmpeg via winget, open PowerShell or Command Prompt and run:**  
@@ -60,16 +58,21 @@ A simple application to process YouTube (and YouTube Music) playlists and export
 2. In the URL, locate the `list=` parameter. For example, in
    `https://www.youtube.com/playlist?list=PLxyz123456`, the playlist ID is `PLxyz123456`.
 
-Paste either the full URL or just the ID — both work.
+Paste either the full URL or just the ID - both work.
 
 ## Installation
 
-### Prebuilt Executable
+### Option 1: Windows Installer
 
-Download the latest zip from [Releases](https://github.com/Locko2901/YouTubeMusicTools/releases).  
-> Note: Binaries are unsigned — if you prefer, build from source.
+Download the latest installer (YTMTools-Setup.exe) from [Releases](https://github.com/Locko2901/YouTubeMusicTools/releases) for a standard Windows installation.
 
-### Build from Source
+### Option 2: Portable Version
+
+Download the latest zip from [Releases](https://github.com/Locko2901/YouTubeMusicTools/releases).
+
+> Note: All binaries are unsigned - if you prefer, build from source.
+
+### Option 3: Build from Source
 
 1. Clone the repo:
 
@@ -105,7 +108,7 @@ If not, yell at your screen (or check the logs).
  
 If something breaks:
 - Try clearing the encoder cache
-- Check the logs in the root directory
+- Check the logs
 - Open an issue
 - Or hey, maybe fix it yourself
 - Or don't. It's your time.
@@ -117,11 +120,11 @@ If something breaks:
 
 ## Credits
 
-- [yt-dlp](https://github.com/yt-dlp/yt-dlp) — handles all the downloading
-- [Nuitka](https://nuitka.net/) — compiles Python into binaries
-- [FFmpeg](https://ffmpeg.org/) — the audio/video backend hero
+- [yt-dlp](https://github.com/yt-dlp/yt-dlp) - handles all the downloading
+- [Nuitka](https://nuitka.net/) - compiles Python into binaries
+- [FFmpeg](https://ffmpeg.org/) - the audio/video backend hero
 
-_This app is, aside from one core feature, essentially a GUI wrapper around `yt-dlp` — shoutout to the legends behind it._
+_This app is, aside from one core feature, essentially a GUI wrapper around `yt-dlp` - shoutout to the legends behind it._
 
 ## License
 

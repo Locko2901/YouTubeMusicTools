@@ -1,12 +1,11 @@
+import glob
 import os
 import platform
 import subprocess
-import glob
-
 import sys
 from tkinter import ACTIVE, END, messagebox
 
-from config.settings import DOWNLOAD_DIR, OUTPUT_DIR
+import config.settings as cs
 from utils.logging import get_logger
 
 logger = get_logger()
@@ -21,14 +20,14 @@ def list_files(app):
     app.file_listbox.delete(0, END)
     pad_spaces = 2
     try:
-        files = os.listdir(OUTPUT_DIR)
+        files = os.listdir(cs.OUTPUT_DIR)
         for file in files:
             pad = ' ' * pad_spaces
             app.file_listbox.insert(END, f"{pad}{file}")
         logger.info(f"Listed {len(files)} files.")
     except FileNotFoundError:
-        logger.error(f"The directory {OUTPUT_DIR} does not exist.")
-        messagebox.showerror("Error", f"The directory {OUTPUT_DIR} does not exist.")
+        logger.error(f"The directory {cs.OUTPUT_DIR} does not exist.")
+        messagebox.showerror("Error", f"The directory {cs.OUTPUT_DIR} does not exist.")
 
 def open_file(app):
     """
@@ -40,7 +39,7 @@ def open_file(app):
         messagebox.showwarning("No File Selected", "Please select a file to open.")
         return
 
-    file_path = os.path.join(OUTPUT_DIR, selected_file)
+    file_path = os.path.join(cs.OUTPUT_DIR, selected_file)
     if os.path.isfile(file_path):
         try:
             logger.info(f"Opening file {file_path}")
@@ -63,7 +62,7 @@ def show_file_in_directory(app):
         logger.warning("No file selected for showing in directory.")
         messagebox.showwarning("No File Selected", "Please select a file to show in directory.")
         return
-    file_path = os.path.abspath(os.path.join(OUTPUT_DIR, selected_file))
+    file_path = os.path.abspath(os.path.join(cs.OUTPUT_DIR, selected_file))
     if os.path.isfile(file_path):
         try:
             logger.info(f"Showing file {file_path} in directory.")
@@ -91,7 +90,7 @@ def delete_file(app):
         messagebox.showwarning("No File Selected", "Please select a file to delete.")
         return
 
-    file_path = os.path.join(OUTPUT_DIR, selected_file)
+    file_path = os.path.join(cs.OUTPUT_DIR, selected_file)
     if not os.path.isfile(file_path):
         logger.error(f"File {selected_file} does not exist.")
         messagebox.showerror("Error", "Selected file does not exist.")
@@ -176,19 +175,7 @@ def clear_directory(directory):
         logger.error(f"Failed to clear directory: {str(e)}")
         messagebox.showerror("Error", f"Failed to clear directory: {str(e)}")
 
-def create_directories(directories):
-    """
-    Creates all directories in the provided list, if they don't exist.
-    """
-    for directory in directories:
-        logger.info(f"Creating directory: {directory}")
-        try:
-            os.makedirs(directory, exist_ok=True)
-        except Exception as e:
-            logger.error(f"Failed to create directory {directory}: {e}")
-    logger.info("All directories created successfully")
-
-def trim_logs_directory(directory, keep_last=4):
+def trim_logs_directory(directory, keep_last=5):
     """
     Keeps only the most recent N log files in the specified directory.
     Args:
@@ -214,7 +201,7 @@ def clear_download_directory(app):
     Empties the DOWNLOAD_DIR and updates UI.
     """
     logger.info("Clearing download directory.")
-    clear_directory(DOWNLOAD_DIR)
+    clear_directory(cs.DOWNLOAD_DIR)
     app.update_directory_sizes()
     logger.info("Download directory cleared.")
 

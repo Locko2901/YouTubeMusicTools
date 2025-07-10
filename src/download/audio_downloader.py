@@ -1,9 +1,12 @@
 import os
 import subprocess
 import uuid
+
 from yt_dlp import YoutubeDL
 from yt_dlp.utils import DownloadError
 from utils.logging import get_logger
+
+import config.settings as cs
 
 logger = get_logger()
 
@@ -18,7 +21,7 @@ if os.name == 'nt':
     subprocess.Popen = NoConsolePopen
 
 # =================== Audio Downloader ===================
-def download_videos(videos, download_dir="./data/downloads"):
+def download_videos(videos):
     """
     Downloads the best available audio for a list of YouTube videos and saves them as MP3 (320 kbps).
     Args:
@@ -27,6 +30,7 @@ def download_videos(videos, download_dir="./data/downloads"):
     Returns:
         dict: Mapping of downloaded filenames to song titles.
     """
+    download_dir = cs.DOWNLOAD_DIR
     os.makedirs(download_dir, exist_ok=True)
     ydl_opts = {
         'format': 'bestaudio/best',
@@ -57,7 +61,7 @@ def download_videos(videos, download_dir="./data/downloads"):
 
 # =================== Audio Merger ===================
 
-def merge_files(playlist_name, downloaded_files, download_dir="./data/downloads", output_dir="./data/output"):
+def merge_files(playlist_name, downloaded_files):
     """
     Concatenates multiple MP3 files into one playlist MP3 file using ffmpeg.
     Args:
@@ -66,8 +70,10 @@ def merge_files(playlist_name, downloaded_files, download_dir="./data/downloads"
         download_dir (str): Directory containing the MP3s.
         output_dir (str): Output directory for the merged playlist.
     """
+    download_dir = cs.DOWNLOAD_DIR
+    output_dir = cs.OUTPUT_DIR
     os.makedirs(output_dir, exist_ok=True)
-    filelist_path = "filelist.txt"
+    filelist_path = os.path.join(cs.APPDATA_DIR, "filelist.txt")
     logger.info("Merging all files into one...")
     logger.debug(f"Files to merge: {downloaded_files}")
 

@@ -1,9 +1,10 @@
 import threading
 from tkinter import messagebox
+
 from download.audio_downloader import download_videos, merge_files
 from processing.file_utils import write_to_file
-from services.youtube import get_playlist_items, get_playlist_name
 from services.file_service import cleanup_partial_downloads, list_files
+from services.youtube import get_playlist_items, get_playlist_name
 
 def download_and_process_pipeline(app, logger):
     """
