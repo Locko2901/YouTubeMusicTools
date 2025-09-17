@@ -1,4 +1,4 @@
 mutagen==1.47.0
-Pillow==11.2.1
+Pillow==11.3.0
 yt_dlp==2025.3.31
 customtkinter==5.2.2
